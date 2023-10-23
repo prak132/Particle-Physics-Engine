@@ -5,13 +5,19 @@ Simple particle physics simulation program using the SFML library. The aim of th
 ## Prerequisites
 Before running this code, make sure you have the SFML library installed. On MacOS you can install [homebrew](https://brew.sh/) and follow their install guide then run:
 
-```brew install sfml```
+```shell
+brew install sfml
+```
 
 ## Building and Running
 To compile and then run the program you need to use an [IDE](https://en.wikipedia.org/wiki/Integrated_development_environment) like [Visual Studio Code](https://code.visualstudio.com/) then go into terminal and run this command:
 
-```g++ main.cpp -o build -std=c++17 -I/opt/homebrew/include -L/opt/homebrew/opt/sfml/lib -lsfml-graphics -lsfml-window -lsfml-system```
+```shell
+g++ main.cpp -o build -std=c++17 -I/opt/homebrew/include -L/opt/homebrew/opt/sfml/lib -lsfml-graphics -lsfml-window -lsfml-system
+```
 
 Then to compile it run:
 
-```./build```
+```shell
+./build
+```

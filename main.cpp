@@ -1,6 +1,12 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <random>
+#include <iostream>
+
+int numParticles;
+int viewWidth=800, viewHeight=600;
+
+float dotProduct(const sf::Vector2f& v1, const sf::Vector2f& v2);
 
 class Particle {
 public:
@@ -20,16 +26,38 @@ public:
         position += velocity * dt;
         shape.setPosition(position);
     }
+
+    void handleCollision(Particle& other) {
+        sf::Vector2f delta = other.position - position;
+        float distance = sqrt(delta.x * delta.x + delta.y * delta.y);
+        if (distance < radius + other.radius && distance > 0.001f) {
+            sf::Vector2f normal = delta / distance;
+            sf::Vector2f relativeVelocity = other.velocity - velocity;
+            float impulse = (2.0f * dotProduct(relativeVelocity, normal)) / (1.0f / mass + 1.0f / other.mass);
+            velocity += impulse * normal / mass;
+            other.velocity -= impulse * normal / other.mass;
+            float overlap = (radius + other.radius - distance) / 2.0f;
+            position -= overlap * normal;
+            other.position += overlap * normal;
+        }
+    }
+// greater mass = more inertia
+private:
+    float mass = 1.0f;
 };
 
+float dotProduct(const sf::Vector2f& v1, const sf::Vector2f& v2) {
+    return v1.x * v2.x + v1.y * v2.y;
+}
+
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "Particle Physics Simulation");
+    std::cout << "Amt of particles: "; std::cin >> numParticles;
+    sf::RenderWindow window(sf::VideoMode(viewWidth, viewHeight), "Particle Physics Simulation");
     std::vector<Particle> particles;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<float> velDist(-100.0f, 100.0f);
-    // Create initial particles
-    for (int i = 0; i < 50; ++i) {
+    for (int i = 0; i < numParticles; i++) {
         float x = velDist(gen) + 400.0f;
         float y = velDist(gen) + 300.0f;
         float radius = 5.0f;
@@ -37,30 +65,27 @@ int main() {
         particle.velocity.x = velDist(gen);
         particle.velocity.y = velDist(gen);
         particles.push_back(particle);
-    }
-    sf::Clock clock;
+    } sf::Clock clock;
     while (window.isOpen()) {
         sf::Event event;
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed) {
                 window.close();
             }
-        }
-        float dt = clock.restart().asSeconds();
-        for (auto& particle : particles) {
-            particle.update(dt);
-            if (particle.position.x - particle.radius < 0 || particle.position.x + particle.radius > 800) {
-                particle.velocity.x *= -1;
+        } float dt = clock.restart().asSeconds();
+        for (std::size_t i = 0; i < particles.size(); i++) {
+            particles[i].update(dt);
+            if (particles[i].position.x - particles[i].radius < 0 || particles[i].position.x + particles[i].radius > viewWidth) {
+                particles[i].velocity.x *= -1;
+            } if (particles[i].position.y - particles[i].radius < 0 || particles[i].position.y + particles[i].radius > viewHeight) {
+                particles[i].velocity.y *= -1;
+            } for (std::size_t j = i + 1; j < particles.size(); j++) {
+                particles[i].handleCollision(particles[j]);
             }
-            if (particle.position.y - particle.radius < 0 || particle.position.y + particle.radius > 600) {
-                particle.velocity.y *= -1;
-            }
-        }
-        window.clear(sf::Color::Black);
+        } window.clear(sf::Color::Black);
         for (const auto& particle : particles) {
             window.draw(particle.shape);
         }
         window.display();
-    }
-    return 0;
+    } return 0;
 }
