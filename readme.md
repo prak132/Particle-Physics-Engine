@@ -1,6 +1,6 @@
 # Particle Physics Engine
 
-Simple particle physics simulation program using the SFML library. The aim of this program is for me to learn how to utilize the library. Simulating the movement of particles with random velocities within the window. When particles reach the edges of the window, they bounce off, creating a visually interesting simulation.
+Simple particle physics simulation program using the SFML library. The aim of this program is for me to learn how to utilize the library. Simulating the movement of particles with random velocities within the window. When particles reach the edges of the window or other particles, they bounce off, creating a visually interesting simulation.
 
 ## Prerequisites
 Before running this code, make sure you have the SFML library installed. On MacOS you can install [homebrew](https://brew.sh/) and follow their install guide then run:
