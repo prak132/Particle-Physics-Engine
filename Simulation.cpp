@@ -1,4 +1,7 @@
 #include <SFML/Graphics.hpp>
+#include <glm/glm.hpp>
+#include <glm/vec2.hpp>
+#include <glm/geometric.hpp>
 #include <vector>
 #include <random>
 #include <iostream>
@@ -7,29 +10,33 @@
 
 int numParticles;
 int viewWidth = 1200, viewHeight = 800;
+int maxFPS = -1;
 
 float dotProduct(const sf::Vector2f& v1, const sf::Vector2f& v2);
 
 class Particle {
 public:
-    sf::Vector2f position;
-    sf::Vector2f velocity;
+    glm::vec2 position;
+    glm::vec2 velocity;
     float radius;
     sf::CircleShape shape;
-    Particle(float x, float y, float radius) : position(x, y), radius(radius) {
+
+    Particle(float x, float y, float radius)
+        : position(x, y), velocity(0.0f, 0.0f), radius(radius) {
         shape.setRadius(radius);
         shape.setOrigin(radius, radius);
-        shape.setPosition(position);
+        shape.setPosition(position.x, position.y);
         shape.setFillColor(sf::Color::Blue);
     }
 
     void update(float dt) {
         position += velocity * dt;
         for (int i = 0; i < 2; ++i) {
-            float& pos = (i == 0) ? position.x : position.y;
-            float& vel = (i == 0) ? velocity.x : velocity.y;
+            float& pos = i == 0 ? position.x : position.y;
+            float& vel = i == 0 ? velocity.x : velocity.y;
             const float boundaryMin = radius;
-            const float boundaryMax = (i == 0) ? viewWidth - radius : viewHeight - radius;
+            const float boundaryMax = i == 0 ? viewWidth - radius : viewHeight - radius;
+
             if (pos < boundaryMin) {
                 vel *= -1;
                 pos = boundaryMin;
@@ -37,16 +44,17 @@ public:
                 vel *= -1;
                 pos = boundaryMax;
             }
-        } shape.setPosition(position);
+        }
+        shape.setPosition(position.x, position.y);
     }
 
     void handleCollision(Particle& other) {
-        sf::Vector2f delta = other.position - position;
-        float distance = sqrt(dotProduct(delta, delta));
+        glm::vec2 delta = other.position - position;
+        float distance = glm::length(delta);
         if (distance < radius + other.radius && distance > 0.001f) {
-            sf::Vector2f normal = delta / distance;
-            sf::Vector2f relativeVelocity = other.velocity - velocity;
-            float impulse = (2.0f * dotProduct(relativeVelocity, normal)) / (2.0f);
+            glm::vec2 normal = glm::normalize(delta);
+            glm::vec2 relativeVelocity = other.velocity - velocity;
+            float impulse = (2.0f * glm::dot(relativeVelocity, normal)) / (2.0f);
             velocity += impulse * normal;
             other.velocity -= impulse * normal;
             float overlap = 0.5f * (radius + other.radius - distance);
@@ -156,5 +164,7 @@ int main() {
             window.draw(particle->shape);
         } window.draw(fpsText);
         window.display();
-    } return 0;
+        maxFPS = std::max(maxFPS, static_cast<int>(fps));
+    } std::cout << "Max FPS reached: " << maxFPS << "\n";
+    return 0;
 }
