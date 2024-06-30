@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Physics Simulation</title>
+    <style>
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: black;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            margin: 10px;
+        }
+        #controls > div {
+            margin: 0 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <div>
+            <label for="newParticleX">X Position:</label>
+            <input type="number" id="newParticleX" value="400" min="0" max="800">
+        </div>
+        <div>
+            <label for="newParticleY">Y Position:</label>
+            <input type="number" id="newParticleY" value="300" min="0" max="600">
+        </div>
+        <div>
+            <label for="newParticleVelocityX">X Velocity:</label>
+            <input type="number" id="newParticleVelocityX" value="0">
+        </div>
+        <div>
+            <label for="newParticleVelocityY">Y Velocity:</label>
+            <input type="number" id="newParticleVelocityY" value="0">
+        </div>
+        <div>
+            <button id="addParticleBtn">Add Particle</button>
+        </div>
+    </div>
+    <canvas id="simulationCanvas" width="800" height="600"></canvas>
+    <script src="particle_simulation.js"></script>
+</body>
+</html>
